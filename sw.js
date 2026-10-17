@@ -1,5 +1,5 @@
 /* Robotics AI Prep service worker: works offline, picks up new versions when online */
-const CACHE = "rap-shell-v1";
+const CACHE = "rap-shell-v2";
 const FONTS = "rap-fonts-v1";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 
@@ -28,7 +28,7 @@ self.addEventListener("fetch", e => {
     const c = await caches.open(CACHE);
     try{
       const r = await withTimeout(fetch(req, {cache:"no-store"}), 4000);
-      if(r && r.ok) c.put(req, r.clone());
+      if(r && r.ok && !r.redirected && new URL(r.url).origin === location.origin) c.put(req, r.clone()); // never cache a login redirect
       return r;
     }catch(err){
       const hit = await c.match(req, {ignoreSearch:true});
